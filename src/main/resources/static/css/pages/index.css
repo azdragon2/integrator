@@ -1,0 +1,22 @@
+.logout_form{
+	padding:0px 10px 10px;
+	width:65%;
+	float:right
+}
+
+.left_col {
+	background-color: #543e65;
+}
+
+.nav_title {
+	background-color: #32253c;
+}
+
+#nav_title_logo {
+	width:42px;
+	margin-right:10px;
+}
+
+body {
+	background-color: #543e65;
+}

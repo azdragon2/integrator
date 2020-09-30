@@ -1,0 +1,9 @@
+#invalidLogin {
+	display: none;
+	color: red;
+	font-size: 16px;
+}
+
+#header.alt .logo img {
+	width:64px;
+}
