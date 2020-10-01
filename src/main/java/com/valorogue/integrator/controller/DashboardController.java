@@ -1,24 +1,20 @@
 package com.valorogue.integrator.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.valorogue.integrator.model.Role;
-import com.valorogue.integrator.model.User;
-import com.valorogue.integrator.service.UserService;
-
 @Controller
-public class DashboardController
+public class DashboardController extends IntegratorPageController
 {
 	public static final Logger log = LoggerFactory.getLogger(DashboardController.class);
-
-	@Autowired
-	UserService userService;
 
 	// -----GET-----
 	@GetMapping({ "/", "/index", "/home" })
@@ -36,35 +32,50 @@ public class DashboardController
 		return modelAndView;
 	}
 
-	// -----PRIVATE METHODS-----
-	/**
-	 * Add information used on every page to the provided ModelAndView.
-	 * 
-	 * @param modelAndView
-	 */
-	private void defaultModelAndView(ModelAndView modelAndView)
+	@GetMapping("/requests")
+	public ModelAndView requests(ModelAndView modelAndView)
 	{
-		User user = getUser();
-		modelAndView.addObject("firstName", user.getFirstName());
-		modelAndView.addObject("lastName", user.getLastName());
-		modelAndView.addObject("email", user.getEmail());
-
-		if (user.getRoles().size() != 1)
-			log.warn("User " + user.getId() + " has invalid roles");
-		else
-			modelAndView.addObject("role", ((Role) user.getRoles().toArray()[0]).getName());
+		defaultModelAndView(modelAndView);
+		modelAndView.setViewName("requests");
+		return modelAndView;
 	}
 
-	/**
-	 * Retrieve the Authentication Principal from the Context and query the database
-	 * for the logged in user.
-	 * 
-	 * @return
-	 */
-	private User getUser()
+	@GetMapping("/users")
+	public ModelAndView users(ModelAndView modelAndView)
 	{
-		org.springframework.security.core.userdetails.User user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-				.getContext().getAuthentication().getPrincipal();
-		return userService.getUserByEmail(user.getUsername());
+		defaultModelAndView(modelAndView);
+		modelAndView.setViewName("users");
+		return modelAndView;
+	}
+
+	@GetMapping(value = "/users/query", produces = "application/json")
+	public @ResponseBody Map<String, Object> users(@RequestParam(value = "page", required = true) Integer page,
+			@RequestParam(value = "query", required = true) String query,
+			@RequestParam(value = "sortField", required = true) String sortField,
+			@RequestParam(value = "sortDirection", required = true) String sortDirection)
+	{
+		// Format Sorting Direction and Validate
+		sortDirection = sortDirection.toLowerCase();
+		if (!sortDirection.equals("asc") && !sortDirection.equals("desc"))
+		{
+			throw new IllegalArgumentException("sortDirection can only be 'asc', or 'desc'.");
+		}
+
+		// Validate Sort Field
+		if (!sortField.equals("firstName") && !sortField.equals("lastName") && !sortField.equals("created"))
+		{
+			throw new IllegalArgumentException("sortField can only be 'firstName', 'lastName', or 'created'.");
+		}
+		
+		// Format Query
+		if (query != null)
+		{
+			query = query.toLowerCase();
+		} else
+			query = "";
+
+		Map<String, Object> response = new HashMap<String, Object>();
+		response.put("users", userService.queryUsers(page, query, sortField, sortDirection));
+		return response;
 	}
 }

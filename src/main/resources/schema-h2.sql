@@ -21,3 +21,29 @@ CREATE TABLE IF NOT EXISTS has_role (
 	integrator_role_id uuid not null,
 	deleted boolean not null
 );
+
+CREATE TABLE IF NOT EXISTS endpoint (
+	id uuid PRIMARY KEY,
+	version int,
+	path varchar(150),
+	created timestamp,
+	updated timestamp,
+	deleted boolean not null
+);
+
+CREATE TABLE IF NOT EXISTS request (
+	id uuid PRIMARY KEY,
+	version int,
+	path varchar(255),
+	created timestamp,
+	updated timestamp,
+	deleted boolean not null
+);
+
+CREATE TABLE IF NOT EXISTS activity (
+	id uuid PRIMARY KEY,
+	integrator_user_id uuid not null,
+	activity_type varchar(100) not null,
+	desc varchar(255) not null,
+	created timestamp
+);

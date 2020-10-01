@@ -1,0 +1,11 @@
+#queryActions {
+	margin-bottom: 15px;
+}
+
+#itemForm {
+	min-height:800px;
+}
+
+table tr {
+	cursor: pointer;
+}
